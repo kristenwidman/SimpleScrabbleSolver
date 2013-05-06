@@ -3,16 +3,12 @@
 #kristenwidman
 #May 2, 2013
 
-#problem description: 
+#problem description:
 #  Given 7 letters, return the sorted list of words you can make
 #   including blanks
 
-#brute force:
-# pick one letter, check if in dictionary
-# check all 1 letter combos, then all 2 letter, up to all 7
-
 import sys
-from string import lower
+from string import lower, lowercase
 from itertools import permutations
 
 def check_if_word(word):
@@ -47,11 +43,44 @@ def all_n_perms(word, n):
         #for p in create_permutations(word, i):
             yield p
 
+def handle_blanks(word, n):
+    '''Method to handle dealing with blanks, represented by '_'.
+        Removes the blank from the word and replaces it with
+        every character, running the main program on each character
+        set. Uses sets to hold all matching words to not get
+        duplicates.
+    '''
+    position = word.index('_')
+    word = word[:position] + word[position+1:]
+    word_set = set([])
+    for c in lowercase:
+        word_set = run(word+c, n, word_set)
+    return word_set
+
+def run(word, n, word_set):
+    '''Create all permutations possible for the given letters that are
+        shorter than or equal to the specified length. Check each permutation
+        to see if it is in the dictionary. If it is, add it to the set.
+        Return the set of words.
+    '''
+    for perm in all_n_perms(word, n):
+        perm = ''.join(perm) #only include this line when using itertools fct
+        if check_if_word(perm):
+            word_set.add(perm)
+    return word_set
+
 def main(word, n):
-    for word in all_n_perms(word, n):
-        word = ''.join(word) #only include this line when using itertools fct
-        if check_if_word(word):
-            print word
+    '''
+        Main method.
+        Written to use either itertools.permutations() or my own simple
+        permutation creation method 'create_permutations()'.
+    '''
+    if '_' in word:
+        word_set = handle_blanks(word, n)
+    else:
+        word_set = run(word, n, set([]))
+    for allowed in word_set:
+        print allowed
 
 if __name__ == '__main__':
     main(sys.argv[1], int(sys.argv[2]))
